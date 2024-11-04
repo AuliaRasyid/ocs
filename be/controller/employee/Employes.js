@@ -1,56 +1,46 @@
-const sql = require('mssql');
+const { sequelize } = require('../../models');
+const db = require('../../models');
 
-const getEmployee = async (req, res) => {
+const getEmployees = async (req, res) => {
     try {
-        const result = await sql.query`SELECT * FROM "Employee"`; // Ganti nama tabel sesuai kebutuhan
+        const getAll = await db.Employee.findAll()
+        return res.status(200).send(getAll)
 
-        // Memastikan result dan recordset ada dan tidak kosong
-        if (!result || !result.recordset || result.recordset.length === 0) {
-            return res.status(404).send({
-                status: 404,
-                message: 'Data Employee Not Found'
+    } catch (error) {
+        return res.status(500).send({
+            status: 500,
+            message: 'Internal server error'
+        })
+    }
+}
+
+const getEmployeeNik = async (req, res) => {
+    try {
+        const nik = req.params.nik; // Mengambil NIK dari parameter URL
+
+        if (!nik) {
+            return res.status(400).send({
+                status: 400,
+                message: 'nik required'
             });
         }
 
-        // Mengirimkan hasil recordset
-        res.status(200).send(result.recordset);
+        const getNik = await db.Employee.findOne({
+            where: {
+                Nik : nik
+            }
+        })
+        return res.status(200).send(getNik)
     } catch (error) {
-        res.status(500).send('Internal server error');
+        return res.status(500).send({
+            status: 500,
+            message: 'Internal Server Error'
+        })
     }
-};
-
-// Controller untuk mencari employee berdasarkan NIK
-const getEmployeeByNik = async (req, res) => {
-    const nik = req.params.nik; // Mengambil NIK dari parameter URL
-    
-    if(!nik){
-        return res.status(400).send({
-            status: 400,
-            message: 'nik required'
-        });
-    }
-
-    try {
-        // Query untuk mencari employee berdasarkan NIK
-        const result = await sql.query`SELECT * FROM "Employee" WHERE Nik = ${nik}`;
-
-        // Memastikan hasil query ada
-        if (!result || !result.recordset || result.recordset.length === 0) {
-            return res.status(404).send({
-                status: 404,
-                message: 'Employee not found'
-            });
-        }
-
-        // Mengirimkan hasil recordset
-        res.status(200).send(result.recordset[0]); // Mengirimkan satu pegawai
-    } catch (error) {
-        res.status(500).send('Internal server error');
-    }
-};
+}
 
 
 module.exports = {
-    getEmployee,
-    getEmployeeByNik
+    getEmployees,
+    getEmployeeNik
 };

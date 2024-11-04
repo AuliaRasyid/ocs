@@ -6,7 +6,8 @@ import './index.css';
 const WorkflowApproval = () => {
     const [showModal, setShowModal] = useState(false);
     const [workflowApprovals, setWorkflowApprovals] = useState([]);
-    const [needApprovalData, setNeedApproval] = useState([])
+    const [needApprovalData, setNeedApproval] = useState([]);
+    const [activeTab, setActiveTab] = useState('workflow'); // Menambahkan state untuk tab aktif
 
     const toggleModal = () => {
         setShowModal(prevShowModal => !prevShowModal);
@@ -16,13 +17,11 @@ const WorkflowApproval = () => {
         try {
             const response = await axios.get(`http://localhost:3000/workflow`);
             if (response && response.data) {
-              
-                const dataFilter = response.data.filter((el=> el.Type !== 'Total Amount >='))
-                
-                const dataFilterAm = response.data.filter((el=> el.Type == 'Total Amount >='))
+                const dataFilter = response.data.filter((el => el.Type !== 'Total Amount >='));                
+                const dataFilterAm = response.data.filter((el => el.Type === 'Total Amount >='));
 
-                setWorkflowApprovals(dataFilter)
-                setNeedApproval(dataFilterAm)
+                setWorkflowApprovals(dataFilter);
+                setNeedApproval(dataFilterAm);
             }
         } catch (error) {
             console.error('Error fetchWorkFlowApproval info:', error);
@@ -33,182 +32,112 @@ const WorkflowApproval = () => {
     const handleSubmit = async (data) => {
         try {
             const body = {
-                Modul_id : data.id,
-                createdBy : data.Nik,
-                Amount : data.Value,
+                Modul_id: data.id,
+                createdBy: data.Nik,
+                Amount: data.Value,
                 Nik: data.Nik,
                 Name: data.Name,
                 Position: data.Position,
-                Level : data.Value
-            }
-            const response = await axios.post('http://localhost:3000/workflow/need-approval', body)
+                Level: data.Value
+            };
+            await axios.post('http://localhost:3000/workflow/need-approval', body);
             alert('Success');
         } catch (error) {
             alert('Failed to Submit.');
         }
-    }
+    };
 
     useEffect(() => {
-        fetchWorkFlowApproval()
-    }, [])
+        fetchWorkFlowApproval();
+    }, []);
 
     return (
         <div className="workflow-approval-container">
-            <h1>Workflow Approval List</h1>
+            <h1>OCS</h1>
 
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-3">
-                                Modul
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Type
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Value/Level
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Nik
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Name
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Email
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Position
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Action
-                            </th>
-                            <th>
-                                <button onClick={toggleModal} className="add-button">+</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            workflowApprovals && workflowApprovals.length > 0 &&
-                            workflowApprovals.map((data) => (
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {data?.Modul}
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        {data?.Type}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data?.Value}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Nik}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Name}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Email}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Position}
-                                    </td>
-                                    
-                                    <td class="px-6 py-4">
-                                        <button onClick={(e)=>{
-                                            e.preventDefault()
-                                        }} class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-
-                    </tbody>
-                </table>
+            {/* Tab Navigation */}
+            <div className="tabs">
+                <button 
+                    onClick={() => setActiveTab('workflow')} 
+                    className={activeTab === 'workflow' ? 'active-tab' : ''}
+                >
+                    Workflow
+                </button>
+                <button 
+                    onClick={() => setActiveTab('approval')} 
+                    className={activeTab === 'approval' ? 'active-tab' : ''}
+                >
+                    Approval
+                </button>
             </div>
 
-            <h1>Need Approval List</h1>
-
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-6 py-3">
-                                Modul
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Type
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Value/Level
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Nik
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Name
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Email
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Position
-                            </th>
-                            <th scope="col" class="px-6 py-3">
-                                Action
-                            </th>
-                            <th>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            needApprovalData && needApprovalData.length > 0 &&
-                            needApprovalData.map((data) => (
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {data?.Modul}
+            {/* Tampilkan tabel berdasarkan tab yang aktif dengan border dan shadow */}
+            <div className="tab-container">
+                {activeTab === 'workflow' ? (
+                    <div className="active-tab-content">
+                        <h2>Workflow List</h2>
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">Modul</th>
+                                    <th scope="col" className="px-6 py-3">Type</th>
+                                    <th scope="col" className="px-6 py-3">Value/Level</th>
+                                    <th scope="col" className="px-6 py-3">Nik</th>
+                                    <th scope="col" className="px-6 py-3">Name</th>
+                                    <th scope="col" className="px-6 py-3">Email</th>
+                                    <th scope="col" className="px-6 py-3">Position</th>
+                                    <th scope="col" className="px-6 py-3">Action</th>
+                                    <th>
+                                        <button onClick={toggleModal} className="add-button">+</button>
                                     </th>
-                                    <td class="px-6 py-4">
-                                        {data?.Type}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data?.Value}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Nik}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Name}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Email}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {data.Position}
-                                    </td>
-
-                                    <td class="px-6 py-4">
-                                        <button onClick={(e) => {
-                                            e.preventDefault()
-                                            handleSubmit(data)
-                                        }} class="font-medium text-red-600 dark:text-red-500 hover:underline">Need Approval</button>
-                                    </td>
                                 </tr>
-                            ))
-                        }
-
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody>
+                                {workflowApprovals && workflowApprovals.map((data) => (
+                                    <tr key={data.id} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            {data?.Modul}
+                                        </th>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="active-tab-content">
+                        <h2>Approval List</h2>
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">Modul</th>
+                                    <th scope="col" className="px-6 py-3">Type</th>
+                                    <th scope="col" className="px-6 py-3">Value/Level</th>
+                                    <th scope="col" className="px-6 py-3">Nik</th>
+                                    <th scope="col" className="px-6 py-3">Name</th>
+                                    <th scope="col" className="px-6 py-3">Email</th>
+                                    <th scope="col" className="px-6 py-3">Position</th>
+                                    <th scope="col" className="px-6 py-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {needApprovalData && needApprovalData.map((data) => (
+                                    <tr key={data.id} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            {data?.Modul}
+                                        </th>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {showModal && (
                 <div className="modal">
                     <WorkflowApprovalForm show={showModal} onClose={() => {
-                        setShowModal(false)
-                        fetchWorkFlowApproval()
+                        setShowModal(false);
+                        fetchWorkFlowApproval();
                     }} />
                 </div>
             )}

@@ -156,18 +156,22 @@ const WorkflowApprovalForm = ({ show, onClose }) => {
                         ))}
                     </select>
                 </div>
-                <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700">Value/level</label>
-                    <input
-                        type="text"
-                        value={approverData.value}
-                        onChange={(e) => handleApproverChange(index, 'value', e.target.value)}
-                        onBlur={() => fetchApproverInfo(index)}
-                        maxLength={16}
-                        className="w-full border-gray-300 rounded-lg"
-                        required
-                    />
-                </div>
+                {
+                    approverData.type !== 'Custom' &&
+                    <div className="mt-2">
+                        <label className="block text-sm font-medium text-gray-700">Value/level</label>
+                        <input
+                            type="text"
+                            value={approverData.value}
+                            onChange={(e) => handleApproverChange(index, 'value', e.target.value)}
+                            onBlur={() => fetchApproverInfo(index)}
+                            maxLength={16}
+                            className="w-full border-gray-300 rounded-lg"
+                            required
+                        />
+                    </div>
+                }
+               
                 <div className="mt-2">
                     <label className="block text-sm font-medium text-gray-700">Total Amount</label>
                     <input
@@ -180,20 +184,6 @@ const WorkflowApprovalForm = ({ show, onClose }) => {
                         required
                     />
                 </div>
-                {
-                    approverData.type !== 'HRIS' && <div className="mt-2">
-                        <label className="block text-sm font-medium text-gray-700">NIK</label>
-                        <input
-                            type="text"
-                            value={approverData.nik}
-                            onChange={(e) => handleApproverChange(index, 'nik', e.target.value)}
-                            onBlur={() => fetchApproverInfo(index)}
-                            maxLength={16}
-                            className="w-full border-gray-300 rounded-lg"
-                            required
-                        />
-                    </div>
-                }
                 <div className="mt-2">
                     <label className="block text-sm font-medium text-gray-700">Approver Name</label>
                     {
@@ -210,13 +200,14 @@ const WorkflowApprovalForm = ({ show, onClose }) => {
                                     // handleApproverChange(index, 'name', e.target.value)
                                     const filter = employee.find(el => el.Name === e.target.value)
                                     if (filter) {
-                                        const { Name, Email, Position } = filter
+                                        const { Name, Email, Position, Nik } = filter
                                         const updatedApprovers = approver.map((approverData, i) =>
                                             i === index ? {
                                                 ...approverData,
                                                 name: Name,
                                                 email: Email,
-                                                position: Position
+                                                position: Position,
+                                                nik : Nik
                                             } : approverData
                                         );
                                         setApprover(updatedApprovers);
@@ -234,6 +225,23 @@ const WorkflowApprovalForm = ({ show, onClose }) => {
                             </select>
                     }
 
+                </div>
+                <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                        NIK {
+                            approverData.type !== 'HRIS' && <span className="text-red-500">*</span>
+                        }
+                    </label>
+                    <input
+                        type="text"
+                        value={approverData.nik}
+                        onChange={(e) => handleApproverChange(index, 'nik', e.target.value)}
+                        onBlur={() => fetchApproverInfo(index)}
+                        maxLength={16}
+                        className="w-full border-gray-300 rounded-lg"
+                        required={approverData.type !== 'HRIS'}
+                        disabled={approverData.type === 'HRIS'}
+                    />
                 </div>
                 <div className="mt-2">
                     <label className="block text-sm font-medium text-gray-700">Approver Email</label>
