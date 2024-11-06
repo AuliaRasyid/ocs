@@ -171,19 +171,21 @@ const WorkflowApprovalForm = ({ show, onClose }) => {
                         />
                     </div>
                 }
-               
-                <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700">Total Amount</label>
-                    <input
-                        type="text"
-                        value={approverData.amount}
-                        onChange={(e) => handleApproverChange(index, 'amount', e.target.value)}
-                        onBlur={() => fetchApproverInfo(index)}
-                        maxLength={16}
-                        className="w-full border-gray-300 rounded-lg"
-                        required
-                    />
-                </div>
+                {
+                    approverData.type !== 'Custom' && approverData.type !== 'HRIS' && <div className="mt-2">
+                        <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                        <input
+                            type="text"
+                            value={approverData.amount}
+                            onChange={(e) => handleApproverChange(index, 'amount', e.target.value)}
+                            onBlur={() => fetchApproverInfo(index)}
+                            maxLength={16}
+                            className="w-full border-gray-300 rounded-lg"
+                            required
+                        />
+                    </div>
+                }
+             
                 <div className="mt-2">
                     <label className="block text-sm font-medium text-gray-700">Approver Name</label>
                     {
